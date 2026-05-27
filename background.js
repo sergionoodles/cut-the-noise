@@ -1,8 +1,10 @@
-// ── Badge management ──────────────────────────────────────────────────
-// Shows a compact badge on the extension icon when the current tab is X/Twitter
-// and the filter is enabled.
+// ── Toolbar indicator management ───────────────────────────────────────
 
-const ACTIVE_BADGE_TEXT = '•';
+const ICON_SIZES = [16, 32];
+const ICON_SOURCE_PATH = 'icons/icon128.png';
+
+let baseIconImageDataPromise;
+let activeIconImageDataPromise;
 
 function isXUrl(url) {
   if (!url) return false;
@@ -17,18 +19,76 @@ function isXUrl(url) {
   }
 }
 
-async function updateBadge(tabId) {
+async function buildIconImageData(showActiveDot) {
+  const res = await fetch(chrome.runtime.getURL(ICON_SOURCE_PATH));
+  const blob = await res.blob();
+  const bitmap = await createImageBitmap(blob);
+  const imageDataBySize = {};
+
+  for (const size of ICON_SIZES) {
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+
+    ctx.drawImage(bitmap, 0, 0, size, size);
+
+    if (showActiveDot) {
+      const radius = Math.max(2.8, size * 0.2);
+      const x = size - radius - 1;
+      const y = size - radius - 1;
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#1D9BF0';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(1, size * 0.08);
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.stroke();
+    }
+
+    imageDataBySize[size] = ctx.getImageData(0, 0, size, size);
+  }
+
+  return imageDataBySize;
+}
+
+function getBaseIconImageData() {
+  if (!baseIconImageDataPromise) {
+    baseIconImageDataPromise = buildIconImageData(false);
+  }
+  return baseIconImageDataPromise;
+}
+
+function getActiveIconImageData() {
+  if (!activeIconImageDataPromise) {
+    activeIconImageDataPromise = buildIconImageData(true);
+  }
+  return activeIconImageDataPromise;
+}
+
+async function setToolbarIndicator(tabId, isActive) {
+  const imageData = isActive
+    ? await getActiveIconImageData()
+    : await getBaseIconImageData();
+
+  await chrome.action.setIcon({ imageData, tabId });
+  await chrome.action.setBadgeText({ text: '', tabId });
+}
+
+async function updateToolbarIndicator(tabId) {
   try {
     const tab = await chrome.tabs.get(tabId);
     if (isXUrl(tab.url)) {
       const data = await chrome.storage.sync.get({ enabled: true });
       if (data.enabled) {
-        chrome.action.setBadgeText({ text: ACTIVE_BADGE_TEXT, tabId });
-        chrome.action.setBadgeBackgroundColor({ color: '#1D9BF0', tabId });
+        await setToolbarIndicator(tabId, true);
         return;
       }
     }
-    chrome.action.setBadgeText({ text: '', tabId });
+    await setToolbarIndicator(tabId, false);
   } catch {
     // Tab no longer exists.
   }
@@ -36,10 +96,10 @@ async function updateBadge(tabId) {
 
 // ── Tab lifecycle events ──────────────────────────────────────────────
 
-chrome.tabs.onActivated.addListener(({ tabId }) => updateBadge(tabId));
+chrome.tabs.onActivated.addListener(({ tabId }) => updateToolbarIndicator(tabId));
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (changeInfo.status === 'complete') updateBadge(tabId);
+  if (changeInfo.status === 'complete') updateToolbarIndicator(tabId);
 });
 
 // ── Storage changes (enabled/disabled from another context) ───────────
@@ -49,7 +109,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.enabled) {
     chrome.tabs.query({}, (tabs) => {
       for (const tab of tabs) {
-        if (isXUrl(tab.url)) updateBadge(tab.id);
+        if (typeof tab.id === 'number') updateToolbarIndicator(tab.id);
       }
     });
   }
@@ -62,9 +122,8 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!tabId) return;
 
   if (msg.type === 'enableBadge') {
-    chrome.action.setBadgeText({ text: ACTIVE_BADGE_TEXT, tabId });
-    chrome.action.setBadgeBackgroundColor({ color: '#1D9BF0', tabId });
+    setToolbarIndicator(tabId, true);
   } else if (msg.type === 'disableBadge') {
-    chrome.action.setBadgeText({ text: '', tabId });
+    setToolbarIndicator(tabId, false);
   }
 });
