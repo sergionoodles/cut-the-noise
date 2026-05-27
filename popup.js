@@ -13,8 +13,7 @@
     replacement: '',
     keywords: '',
     rules: [
-      { term: 'Breaking', scope: 'anywhere' },
-      { term: 'Breaking News', scope: 'anywhere' },
+      { term: 'breaking', scope: 'anywhere' },
     ],
     ignoreCase: true,
   };

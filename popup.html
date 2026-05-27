@@ -1,269 +1,500 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width" />
-  <title>No More Breaking News</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #1a1a1a;
-      --muted: #666;
-      --border: #e0e0e0;
-      --accent: #1d9bf0;
-      --accent-hover: #1a8cd8;
-      --card-bg: #f5f5f5;
-      --toggle-off: #ccc;
-    }
-    @media (prefers-color-scheme: dark) {
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Cut the Noise</title>
+    <style>
       :root {
-        --bg: #1a1a1a;
-        --fg: #e8e8e8;
-        --muted: #999;
-        --border: #333;
-        --accent: #1d9bf0;
-        --accent-hover: #3aa4f0;
-        --card-bg: #252525;
-        --toggle-off: #555;
+        --bg: #05070c;
+        --panel: rgba(8, 13, 24, 0.94);
+        --panel-2: rgba(12, 20, 35, 0.82);
+        --fg: #edf6ff;
+        --muted: #7d8fa8;
+        --soft: #b4c9e8;
+        --line: rgba(91, 169, 255, 0.2);
+        --line-strong: rgba(91, 169, 255, 0.48);
+        --accent: #5ba9ff;
+        --accent-2: #8fd6ff;
+        --on: #4dff9d;
+        --amber: #ffc857;
+        --red: #ff6b6b;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+        color-scheme: dark;
       }
-    }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
 
-    body {
-      width: 340px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-size: 13px;
-      color: var(--fg);
-      background: var(--bg);
-      padding: 16px;
-      line-height: 1.5;
-    }
+      body {
+        width: 390px;
+        min-height: 520px;
+        margin: 0;
+        color: var(--fg);
+        background:
+          radial-gradient(
+            circle at 12% 10%,
+            rgba(91, 169, 255, 0.2),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 86% 0%,
+            rgba(143, 214, 255, 0.14),
+            transparent 34%
+          ),
+          linear-gradient(135deg, #02040a 0%, #08111f 46%, #020308 100%);
+        font:
+          13px/1.5 ui-monospace,
+          "SFMono-Regular",
+          "Cascadia Code",
+          "Liberation Mono",
+          Menlo,
+          monospace;
+        letter-spacing: -0.01em;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
 
-    h1 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    h1 span { font-size: 18px; }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 18px 18px;
+        mask-image: radial-gradient(circle at 50% 20%, black, transparent 76%);
+      }
 
-    .group {
-      margin-bottom: 14px;
-    }
-    .group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.025) 0,
+          rgba(255, 255, 255, 0.025) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+        opacity: 0.28;
+        mix-blend-mode: screen;
+      }
 
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toggle-row label { margin-bottom: 0; }
+      .terminal {
+        position: relative;
+        margin: 12px;
+        overflow: hidden;
+      }
 
-    /* CSS toggle switch */
-    .switch {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .switch .slider {
-      position: absolute;
-      inset: 0;
-      background: var(--toggle-off);
-      border-radius: 20px;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .switch .slider::before {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      left: 2px;
-      bottom: 2px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform .2s;
-    }
-    .switch input:checked + .slider {
-      background: var(--accent);
-    }
-    .switch input:checked + .slider::before {
-      transform: translateX(16px);
-    }
+      main {
+        position: relative;
+        padding: 5px;
+      }
 
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 7px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 13px;
-      background: var(--bg);
-      color: var(--fg);
-      outline: none;
-      transition: border-color .15s;
-    }
-    input[type="text"]:focus,
-    select:focus {
-      border-color: var(--accent);
-    }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: start;
+        margin-bottom: 16px;
+      }
 
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .checkbox-row input[type="checkbox"] {
-      accent-color: var(--accent);
-      width: 15px;
-      height: 15px;
-    }
+      h1 {
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.05;
+        letter-spacing: -0.06em;
+        text-transform: uppercase;
+      }
 
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 14px 0;
-    }
+      .prompt {
+        display: block;
+        margin: 6px 0 0;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-shadow: 0 0 18px rgba(91, 169, 255, 0.6);
+      }
 
-    .info {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .info code {
-      background: var(--card-bg);
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-size: 11px;
-    }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: var(--panel-2);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
 
-    .status {
-      font-size: 11px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      margin-top: 12px;
-      text-align: center;
-    }
-    .status.active {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-    .status.inactive {
-      background: #fff3e0;
-      color: #e65100;
-    }
-    @media (prefers-color-scheme: dark) {
+      .panel + .panel {
+        margin-top: 12px;
+      }
+
+      .secondary {
+        margin-top: 12px;
+      }
+
+      .group {
+        padding: 13px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .group:last-child {
+        border-bottom: 0;
+      }
+
+      .toggle-row,
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      label,
+      .label-text {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--soft);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .toggle-row label,
+      .checkbox-row label {
+        margin-bottom: 0;
+      }
+
+      .hint,
+      .keyword-list {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .switch {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .switch .slider {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255, 107, 107, 0.48);
+        border-radius: 3px;
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--red);
+        box-shadow:
+          inset 0 0 18px rgba(255, 107, 107, 0.06),
+          0 0 16px rgba(255, 107, 107, 0.1);
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          color 0.2s ease;
+      }
+
+      .switch svg {
+        width: 22px;
+        height: 22px;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        filter: drop-shadow(0 0 8px currentColor);
+      }
+
+      .switch input:checked + .slider {
+        border-color: rgba(77, 255, 157, 0.64);
+        background: rgba(77, 255, 157, 0.12);
+        color: var(--on);
+        box-shadow:
+          inset 0 0 22px rgba(77, 255, 157, 0.09),
+          0 0 18px rgba(77, 255, 157, 0.16);
+      }
+
+      .switch input:focus-visible + .slider {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      input[type="text"],
+      select {
+        width: 100%;
+        min-height: 36px;
+        border: 1px solid rgba(91, 169, 255, 0.22);
+        border-radius: 2px;
+        outline: none;
+        background: rgba(2, 8, 18, 0.72);
+        color: var(--fg);
+        font: inherit;
+        font-size: 12px;
+        transition:
+          border-color 0.16s ease,
+          box-shadow 0.16s ease,
+          background 0.16s ease;
+      }
+
+      input[type="text"] {
+        padding: 8px 10px;
+      }
+
+      select {
+        padding: 8px 28px 8px 10px;
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+          linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+        background-position:
+          calc(100% - 16px) 15px,
+          calc(100% - 11px) 15px;
+        background-size:
+          5px 5px,
+          5px 5px;
+        background-repeat: no-repeat;
+      }
+
+      input[type="text"]::placeholder {
+        color: rgba(180, 201, 232, 0.42);
+      }
+
+      input[type="text"]:focus,
+      select:focus {
+        border-color: var(--accent);
+        background-color: rgba(5, 12, 24, 0.95);
+        box-shadow:
+          0 0 0 3px rgba(91, 169, 255, 0.1),
+          0 0 24px rgba(91, 169, 255, 0.12);
+      }
+
+      .rules {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .rule-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 104px 34px;
+        gap: 7px;
+        align-items: center;
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 2px;
+        background: rgba(0, 0, 0, 0.22);
+      }
+
+      .rule-remove,
+      .add-rule {
+        border: 1px solid rgba(91, 169, 255, 0.3);
+        border-radius: 2px;
+        background: rgba(91, 169, 255, 0.08);
+        color: var(--fg);
+        font: inherit;
+        font-size: 11px;
+        cursor: pointer;
+        transition:
+          transform 0.14s ease,
+          border-color 0.14s ease,
+          background 0.14s ease,
+          box-shadow 0.14s ease;
+      }
+
+      .rule-remove {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        color: var(--red);
+        font-size: 0;
+      }
+
+      .rule-remove::before {
+        content: "x";
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      .add-rule {
+        width: 100%;
+        margin-top: 9px;
+        padding: 9px 10px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .rule-remove:hover,
+      .add-rule:hover {
+        transform: translateY(-1px);
+        border-color: var(--accent);
+        background: rgba(91, 169, 255, 0.14);
+        box-shadow: 0 0 20px rgba(91, 169, 255, 0.12);
+      }
+
+      .checkbox-row {
+        margin: 12px 0 0;
+        padding: 12px 13px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: rgba(5, 10, 20, 0.82);
+      }
+
+      .checkbox-row input[type="checkbox"] {
+        width: 19px;
+        height: 19px;
+        margin: 0;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+
+      .info {
+        margin-top: 12px;
+        padding: 12px 13px;
+        border: 1px dashed rgba(108, 230, 255, 0.24);
+        border-radius: 3px;
+        background: rgba(108, 230, 255, 0.045);
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .info strong {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--accent-2);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .status {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(0, 0, 0, 0.26);
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
       .status.active {
-        background: #1b3a1f;
-        color: #81c784;
+        border-color: rgba(91, 169, 255, 0.44);
+        color: var(--accent-2);
+        box-shadow: inset 0 0 18px rgba(91, 169, 255, 0.08);
       }
+
       .status.inactive {
-        background: #3a2a1b;
-        color: #ffb74d;
+        border-color: rgba(255, 200, 87, 0.3);
+        color: var(--amber);
+        box-shadow: inset 0 0 18px rgba(255, 200, 87, 0.06);
       }
-    }
 
-    .keyword-list {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+      .divider {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="terminal">
+      <main>
+        <header class="hero">
+          <div>
+            <h1>Cut the Noise</h1>
+            <span class="prompt">A local rewrite layer for noisy X words.</span>
+          </div>
+          <label
+            class="switch"
+            aria-label="Enable filter"
+            title="Enable filter"
+          >
+            <input type="checkbox" id="enabled" />
+            <span class="slider">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 2v10" />
+                <path d="M18.4 6.6a9 9 0 1 1-12.8 0" />
+              </svg>
+            </span>
+          </label>
+        </header>
 
-    .rules {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+        <section class="panel" aria-label="Match rules">
+          <div class="group">
+            <label for="rules">Match rules</label>
+            <div id="rules" class="rules" aria-label="Match rules"></div>
+            <button type="button" id="addRule" class="add-rule">
+              + Add rule
+            </button>
+            <div class="keyword-list">
+              Whole words only. Terms need 3+ characters.
+            </div>
+          </div>
+        </section>
 
-    .rule-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 100px auto;
-      gap: 8px;
-      align-items: center;
-    }
+        <div class="checkbox-row">
+          <label for="ignoreCase">Ignore case</label>
+          <input type="checkbox" id="ignoreCase" />
+        </div>
 
-    .rule-remove,
-    .add-rule {
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      color: var(--fg);
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-size: 12px;
-      cursor: pointer;
-    }
+        <section class="panel secondary" aria-label="Replacement text">
+          <div class="group">
+            <label for="replacement">Replace with</label>
+            <input
+              type="text"
+              id="replacement"
+              placeholder="Leave empty to remove"
+            />
+            <div class="hint">
+              Optional. Empty replacement trims trailing punctuation and spaces.
+            </div>
+          </div>
+        </section>
 
-    .add-rule {
-      width: 100%;
-      margin-top: 8px;
-    }
+        <hr class="divider" />
 
-    .rule-remove:hover,
-    .add-rule:hover {
-      border-color: var(--accent);
-    }
-  </style>
-</head>
-<body>
+        <div class="info">
+          <strong>How it works</strong>
+          The extension walks post text and applies each rule either anywhere in
+          the text or only at the start. Posts are never hidden or removed from
+          the timeline.
+        </div>
 
-  <h1><span>&#128264;</span> No More Breaking News</h1>
+        <div id="status" class="status inactive">
+          &#9679; Not connected to X / Twitter
+        </div>
+      </main>
+    </div>
 
-  <!-- Enable / Disable -->
-  <div class="group toggle-row">
-    <label for="enabled">Enable filter</label>
-    <label class="switch">
-      <input type="checkbox" id="enabled" />
-      <span class="slider"></span>
-    </label>
-  </div>
-
-  <!-- Replace with -->
-  <div class="group">
-    <label for="replacement">Replace with</label>
-    <input type="text" id="replacement" placeholder="Leave empty to remove" />
-  </div>
-
-  <!-- Extra keywords -->
-  <div class="group">
-    <label for="rules">Match rules</label>
-    <div id="rules" class="rules" aria-label="Match rules"></div>
-    <button type="button" id="addRule" class="add-rule">Add rule</button>
-    <div class="keyword-list">Rules match whole words only, must be at least 3 characters, and empty replacement removes trailing punctuation and spaces.</div>
-  </div>
-
-  <!-- Toggles -->
-  <div class="checkbox-row">
-    <input type="checkbox" id="ignoreCase" />
-    <label for="ignoreCase">Ignore case</label>
-  </div>
-
-  <hr class="divider" />
-
-  <div class="info">
-    <strong>How it works</strong><br />
-    The extension walks tweet text and applies each rule either anywhere in the
-    text or only at the start. Tweets are never hidden or removed from the
-    timeline.
-  </div>
-
-  <div id="status" class="status inactive">&#9679; Not connected to X / Twitter</div>
-
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>
