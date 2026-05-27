@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>No More Breaking News</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a1a;
+      --muted: #666;
+      --border: #e0e0e0;
+      --accent: #1d9bf0;
+      --accent-hover: #1a8cd8;
+      --card-bg: #f5f5f5;
+      --toggle-off: #ccc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a1a;
+        --fg: #e8e8e8;
+        --muted: #999;
+        --border: #333;
+        --accent: #1d9bf0;
+        --accent-hover: #3aa4f0;
+        --card-bg: #252525;
+        --toggle-off: #555;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      color: var(--fg);
+      background: var(--bg);
+      padding: 16px;
+      line-height: 1.5;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h1 span { font-size: 18px; }
+
+    .group {
+      margin-bottom: 14px;
+    }
+    .group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-row label { margin-bottom: 0; }
+
+    /* CSS toggle switch */
+    .switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .switch .slider {
+      position: absolute;
+      inset: 0;
+      background: var(--toggle-off);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .switch .slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      bottom: 2px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+    }
+    .switch input:checked + .slider {
+      background: var(--accent);
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(16px);
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--fg);
+      outline: none;
+      transition: border-color .15s;
+    }
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 15px;
+      height: 15px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 14px 0;
+    }
+
+    .info {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .info code {
+      background: var(--card-bg);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .status {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .status.active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .status.inactive {
+      background: #fff3e0;
+      color: #e65100;
+    }
+    @media (prefers-color-scheme: dark) {
+      .status.active {
+        background: #1b3a1f;
+        color: #81c784;
+      }
+      .status.inactive {
+        background: #3a2a1b;
+        color: #ffb74d;
+      }
+    }
+
+    .keyword-list {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .rules {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rule-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 100px auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .rule-remove,
+    .add-rule {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--fg);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .add-rule {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .rule-remove:hover,
+    .add-rule:hover {
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <h1><span>&#128264;</span> No More Breaking News</h1>
+
+  <!-- Enable / Disable -->
+  <div class="group toggle-row">
+    <label for="enabled">Enable filter</label>
+    <label class="switch">
+      <input type="checkbox" id="enabled" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Replace with -->
+  <div class="group">
+    <label for="replacement">Replace with</label>
+    <input type="text" id="replacement" placeholder="Leave empty to remove" />
+  </div>
+
+  <!-- Extra keywords -->
+  <div class="group">
+    <label for="rules">Match rules</label>
+    <div id="rules" class="rules" aria-label="Match rules"></div>
+    <button type="button" id="addRule" class="add-rule">Add rule</button>
+    <div class="keyword-list">Rules match whole words only, must be at least 3 characters, and empty replacement removes trailing punctuation and spaces.</div>
+  </div>
+
+  <!-- Toggles -->
+  <div class="checkbox-row">
+    <input type="checkbox" id="ignoreCase" />
+    <label for="ignoreCase">Ignore case</label>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="info">
+    <strong>How it works</strong><br />
+    The extension walks tweet text and applies each rule either anywhere in the
+    text or only at the start. Tweets are never hidden or removed from the
+    timeline.
+  </div>
+
+  <div id="status" class="status inactive">&#9679; Not connected to X / Twitter</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
