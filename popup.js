@@ -50,7 +50,7 @@
   settings.rules = normalizeRules(settings.rules, settings.keywords);
   delete settings.keywords;
 
-  function createRuleRow(rule = { term: "", scope: "anywhere" }) {
+  function createRuleRow(rule = { term: "", scope: "start" }) {
     const row = document.createElement("div");
     row.className = "rule-row";
 
