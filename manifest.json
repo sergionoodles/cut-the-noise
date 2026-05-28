@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Cut the Noise",
   "version": "2026.5.1",
-  "description": "Removes or replaces 'Breaking' and other keywords from posts on X/Twitter, without hiding any content.",
+  "description": "Removes or replaces noisy keywords and tones down promoted posts on X/Twitter.",
   "permissions": ["storage", "tabs"],
   "content_scripts": [
     {
