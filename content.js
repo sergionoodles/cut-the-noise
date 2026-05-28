@@ -12,6 +12,7 @@
     ],
     ignoreCase: true,
     collapseAds: true,
+    tintAds: true,
   };
 
   let settings = { ...DEFAULTS };
@@ -21,6 +22,7 @@
   // always starts from the pre-modification value (avoids double-replacement).
   const originals = new WeakMap();
   const AD_CELL_ATTR = "data-cut-the-noise-ad-cell";
+  const AD_TINT_ATTR = "data-cut-the-noise-ad-tint";
   const AD_ARTICLE_ATTR = "data-cut-the-noise-ad-article";
   const AD_STYLE_ID = "cut-the-noise-ad-style";
 
@@ -102,10 +104,13 @@
         overflow: hidden !important;
         max-height: 66px !important;
         filter: grayscale(0.75) saturate(0.4) !important;
-        background: rgb(86 8 8 / 75%) !important;
         border-bottom-color: rgb(47, 51, 54);
         border-bottom-width: 1px;
         border-radius: 0px !important;
+      }
+
+      [${AD_TINT_ATTR}="true"] {
+        background: rgb(86 8 8 / 75%) !important;
       }
 
       [${AD_CELL_ATTR}="true"] [data-testid="placementTracking"] {
@@ -139,6 +144,14 @@
       cell.removeAttribute(AD_CELL_ATTR);
     }
 
+    const tintedCells = container.matches?.(`[${AD_TINT_ATTR}="true"]`)
+      ? [container]
+      : container.querySelectorAll(`[${AD_TINT_ATTR}="true"]`);
+
+    for (const cell of tintedCells) {
+      cell.removeAttribute(AD_TINT_ATTR);
+    }
+
     const articles = container.matches?.(`[${AD_ARTICLE_ATTR}="true"]`)
       ? [container]
       : container.querySelectorAll(`[${AD_ARTICLE_ATTR}="true"]`);
@@ -150,7 +163,7 @@
 
   function styleAdCells(container) {
     if (!container?.querySelectorAll) return;
-    if (!settings.collapseAds) return;
+    if (!settings.collapseAds && !settings.tintAds) return;
 
     const articles = container.matches?.("article")
       ? [container]
@@ -160,8 +173,18 @@
       if (!isAdPost(article)) continue;
       const cell = article.closest('[data-testid="cellInnerDiv"]');
       if (!cell) continue;
-      cell.setAttribute(AD_CELL_ATTR, "true");
-      article.setAttribute(AD_ARTICLE_ATTR, "true");
+      if (settings.collapseAds) {
+        cell.setAttribute(AD_CELL_ATTR, "true");
+        article.setAttribute(AD_ARTICLE_ATTR, "true");
+      } else {
+        cell.removeAttribute(AD_CELL_ATTR);
+        article.removeAttribute(AD_ARTICLE_ATTR);
+      }
+      if (settings.tintAds) {
+        cell.setAttribute(AD_TINT_ATTR, "true");
+      } else {
+        cell.removeAttribute(AD_TINT_ATTR);
+      }
     }
   }
 

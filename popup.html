@@ -105,7 +105,8 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 14px;
-        align-items: start;
+        align-items: center;
+        line-height: 1;
         margin-bottom: 16px;
       }
 
@@ -127,6 +128,14 @@
         text-shadow: 0 0 18px rgba(91, 169, 255, 0.6);
       }
 
+      .group-title {
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        font-size: 12px;
+        text-shadow: 0 0 18px rgba(91, 169, 255, 0.6);
+        margin-bottom: 12px;
+      }
+
       .panel {
         border: 1px solid var(--line);
         border-radius: 3px;
@@ -144,11 +153,6 @@
 
       .group {
         padding: 13px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .group:last-child {
-        border-bottom: 0;
       }
 
       .toggle-row,
@@ -159,8 +163,7 @@
         gap: 12px;
       }
 
-      label,
-      .label-text {
+      label {
         display: block;
         margin-bottom: 7px;
         color: var(--soft);
@@ -237,6 +240,16 @@
           0 0 18px rgba(77, 255, 157, 0.16);
       }
 
+      body.not-connected .switch .slider,
+      body.not-connected .switch input:checked + .slider {
+        border-color: rgba(255, 200, 87, 0.5);
+        background: rgba(255, 200, 87, 0.12);
+        color: var(--amber);
+        box-shadow:
+          inset 0 0 20px rgba(255, 200, 87, 0.08),
+          0 0 16px rgba(255, 200, 87, 0.14);
+      }
+
       .switch input:focus-visible + .slider {
         outline: 2px solid var(--accent);
         outline-offset: 3px;
@@ -294,13 +307,13 @@
       .rules {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
       }
 
       .rule-row {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 104px 34px;
-        gap: 7px;
+        gap: 6px;
         align-items: center;
         background: rgba(0, 0, 0, 0.22);
       }
@@ -360,6 +373,24 @@
         background: rgba(5, 10, 20, 0.82);
       }
 
+      .group .checkbox-row {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+      }
+
+      .group .field-stack {
+        margin-top: 11px;
+      }
+
+      .group-separator {
+        margin: 0 13px;
+        border: 0;
+        border-top: 1px solid var(--line);
+      }
+
       .checkbox-row input[type="checkbox"] {
         width: 19px;
         height: 19px;
@@ -388,7 +419,7 @@
       }
 
       .status {
-        margin-top: 12px;
+        margin: 0 0 12px;
         padding: 10px 12px;
         border-radius: 3px;
         border: 1px solid rgba(255, 255, 255, 0.09);
@@ -445,9 +476,13 @@
           </label>
         </header>
 
+        <div id="status" class="status inactive">
+          &#9679; Not connected to X
+        </div>
+
         <section class="panel" aria-label="Word rules">
           <div class="group">
-            <label for="rules">Word rules</label>
+            <label for="rules" class="group-title">Word rules</label>
             <div id="rules" class="rules" aria-label="Word rules"></div>
             <button type="button" id="addRule" class="add-rule">
               + Add rule
@@ -456,28 +491,41 @@
               Whole words only. Terms need 3+ characters.
             </div>
           </div>
+          <hr class="group-separator" />
+          <div class="group">
+            <div class="checkbox-row">
+              <label for="ignoreCase">Ignore case</label>
+              <input type="checkbox" id="ignoreCase" />
+            </div>
+
+            <div class="field-stack">
+              <label for="replacement">Replace with</label>
+              <input
+                type="text"
+                id="replacement"
+                placeholder="Leave empty to remove"
+              />
+              <div class="hint">
+                Optional. Empty replacement trims trailing punctuation and
+                spaces.
+              </div>
+            </div>
+          </div>
         </section>
 
-        <div class="checkbox-row">
-          <label for="ignoreCase">Ignore case</label>
-          <input type="checkbox" id="ignoreCase" />
-        </div>
-
-        <div class="checkbox-row">
-          <label for="collapseAds">Tone down promoted posts</label>
-          <input type="checkbox" id="collapseAds" />
-        </div>
-
-        <section class="panel secondary" aria-label="Replacement text">
+        <section class="panel secondary" aria-label="Promoted posts settings">
           <div class="group">
-            <label for="replacement">Replace with</label>
-            <input
-              type="text"
-              id="replacement"
-              placeholder="Leave empty to remove"
-            />
-            <div class="hint">
-              Optional. Empty replacement trims trailing punctuation and spaces.
+            <label class="group-title">Promoted posts</label>
+            <div class="checkbox-row">
+              <label for="collapseAds">Tone down promoted posts</label>
+              <input type="checkbox" id="collapseAds" />
+            </div>
+          </div>
+          <hr class="group-separator" />
+          <div class="group">
+            <div class="checkbox-row">
+              <label for="tintAds">Apply red tint to background</label>
+              <input type="checkbox" id="tintAds" />
             </div>
           </div>
         </section>
@@ -489,10 +537,6 @@
           The extension walks post text and applies each rule either anywhere in
           the text or only at the start. Promoted posts can be visually
           compressed and muted, but posts are never hidden or removed.
-        </div>
-
-        <div id="status" class="status inactive">
-          &#9679; Not connected to X / Twitter
         </div>
       </main>
     </div>

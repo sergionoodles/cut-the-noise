@@ -6,6 +6,7 @@
   const $addRule = document.getElementById("addRule");
   const $ignoreCase = document.getElementById("ignoreCase");
   const $collapseAds = document.getElementById("collapseAds");
+  const $tintAds = document.getElementById("tintAds");
   const $status = document.getElementById("status");
 
   // ── Load settings from storage ────────────────────────────────────────
@@ -16,6 +17,7 @@
     rules: [{ term: "breaking", scope: "start" }],
     ignoreCase: true,
     collapseAds: true,
+    tintAds: true,
   };
 
   let settings;
@@ -98,6 +100,7 @@
   renderRules(settings.rules);
   $ignoreCase.checked = settings.ignoreCase;
   $collapseAds.checked = settings.collapseAds;
+  $tintAds.checked = settings.tintAds;
 
   // ── Save helper ───────────────────────────────────────────────────────
   function readForm() {
@@ -107,6 +110,7 @@
       rules: readRules(),
       ignoreCase: $ignoreCase.checked,
       collapseAds: $collapseAds.checked,
+      tintAds: $tintAds.checked,
     };
   }
 
@@ -118,9 +122,9 @@
     await chrome.storage.sync.set(settings);
     await chrome.storage.sync.remove(["keywords", "badgesOnly"]);
 
-    // Notify the content script in every active X/Twitter tab
+    // Notify the content script in every active X tab.
     const tabs = await chrome.tabs.query({
-      url: ["https://x.com/*", "https://twitter.com/*"],
+      url: ["https://x.com/*"],
     });
     for (const tab of tabs) {
       if (!tab.id) continue;
@@ -133,6 +137,8 @@
         // Content script not available – ignore.
       }
     }
+
+    await updateStatus();
   }
 
   // ── Update status indicator ───────────────────────────────────────────
@@ -146,9 +152,7 @@
       setStatus(false);
       return;
     }
-    const match =
-      tab.url.startsWith("https://x.com") ||
-      tab.url.startsWith("https://twitter.com");
+    const match = tab.url.startsWith("https://x.com");
     if (!match) {
       setStatus(false);
       return;
@@ -159,23 +163,24 @@
         type: "getStatus",
       });
       if (resp && resp.enabled) {
-        setStatus(true, `Active \u2014 ${resp.keywordsCount} rule(s)`);
+        setStatus(true, `Active - ${resp.keywordsCount} rule(s)`);
       } else {
         setStatus(true, "Filter is paused");
       }
     } catch {
-      // Not on X/Twitter or script not loaded.
+      // Not on X or script not loaded.
       setStatus(false);
     }
   }
 
   function setStatus(connected, msg) {
+    document.body.classList.toggle("not-connected", !connected);
     if (connected) {
       $status.className = "status active";
-      $status.textContent = `\u25CF ${msg || "Active on X / Twitter"}`;
+      $status.textContent = `\u25CF ${msg || "Active on X"}`;
     } else {
       $status.className = "status inactive";
-      $status.textContent = "\u25CF Not connected to X / Twitter";
+      $status.textContent = "\u25CF Not connected to X";
     }
   }
 
@@ -188,10 +193,20 @@
     saveTimer = setTimeout(save, 300);
   }
 
-  $enabled.addEventListener("change", scheduleSave);
+  $enabled.addEventListener("change", () => {
+    if ($status.classList.contains("active")) {
+      if ($enabled.checked) {
+        setStatus(true, `Active - ${readRules().length} rule(s)`);
+      } else {
+        setStatus(true, "Filter is paused");
+      }
+    }
+    scheduleSave();
+  });
   $replacement.addEventListener("input", scheduleSave);
   $ignoreCase.addEventListener("change", scheduleSave);
   $collapseAds.addEventListener("change", scheduleSave);
+  $tintAds.addEventListener("change", scheduleSave);
   $addRule.addEventListener("click", () => {
     $rules.append(createRuleRow());
   });

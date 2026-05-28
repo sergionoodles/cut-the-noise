@@ -2,11 +2,11 @@
   "manifest_version": 3,
   "name": "Cut the Noise",
   "version": "2026.5.1",
-  "description": "Removes or replaces noisy keywords and tones down promoted posts on X/Twitter.",
+  "description": "Removes or replaces noisy keywords and tones down promoted posts on X.",
   "permissions": ["storage", "tabs"],
   "content_scripts": [
     {
-      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "matches": ["https://x.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }

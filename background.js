@@ -10,10 +10,7 @@ function isXUrl(url) {
   if (!url) return false;
   try {
     const u = new URL(url);
-    return (
-      (u.hostname === 'x.com' || u.hostname === 'twitter.com') &&
-      (u.protocol === 'https:' || u.protocol === 'http:')
-    );
+    return u.hostname === 'x.com' && u.protocol === 'https:';
   } catch {
     return false;
   }
