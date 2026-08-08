@@ -4,7 +4,7 @@ export function BrandMark({ className = "" }: { className?: string }) {
 
   return (
     <span className={`brand-mark ${className}`.trim()} aria-hidden="true">
-      <img src={src} alt="" width={32} height={32} draggable={false} />
+      <img src={src} alt="" width={38} height={38} draggable={false} />
     </span>
   );
 }
