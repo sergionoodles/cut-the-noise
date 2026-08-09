@@ -301,6 +301,12 @@ h1 {
   display: block;
 }
 
+/* The Amazon mark has more built-in whitespace than the other brand paths. */
+.brand-icon--amazon {
+  width: 24px;
+  height: 24px;
+}
+
 /* Enable/disable badge — top-right of the logo */
 .site-status {
   position: absolute;

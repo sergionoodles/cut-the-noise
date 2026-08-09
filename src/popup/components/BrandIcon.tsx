@@ -10,7 +10,7 @@ export function BrandIcon({ name, className = "", title }: BrandIconProps) {
   const icon = brandIcons[name];
   return (
     <svg
-      className={`brand-icon ${className}`.trim()}
+      className={`brand-icon brand-icon--${name} ${className}`.trim()}
       role="img"
       viewBox={icon.viewBox}
       aria-hidden={title ? undefined : true}
