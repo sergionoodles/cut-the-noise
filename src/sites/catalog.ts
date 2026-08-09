@@ -82,10 +82,7 @@ export const googleDomains = [
 ] as const;
 
 export const amazonMatchPatterns = amazonDomains.map((domain) => `https://*.${domain}/*`);
-export const googleMatchPatterns = googleDomains.flatMap((domain) => [
-  `https://*.${domain}/*`,
-  `https://${domain}/*`,
-]);
+export const googleMatchPatterns = googleDomains.map((domain) => `https://*.${domain}/*`);
 export const supportedSiteMatches = [
   ...xMatchPatterns,
   ...amazonMatchPatterns,
