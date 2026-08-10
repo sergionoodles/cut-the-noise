@@ -158,7 +158,19 @@ export const sites: Record<SiteId, SiteMeta> = {
         kind: "mode",
         key: "sponsored",
         title: "Sponsored results",
-        detail: "Mute or hide paid product placements.",
+        detail: "Mute or hide paid products and full-width sponsored sections.",
+      },
+      {
+        kind: "mode",
+        key: "highRatingSections",
+        title: "High-rating sections",
+        detail: "Mute or hide recommendation carousels such as “4 stars and above”.",
+      },
+      {
+        kind: "mode",
+        key: "searchMismatch",
+        title: "Unrelated products",
+        detail: "On keyword searches, mute or hide products whose titles match none of your search words.",
       },
       {
         kind: "mode-rating",

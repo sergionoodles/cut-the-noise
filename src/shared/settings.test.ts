@@ -44,6 +44,8 @@ describe("resolveSettings", () => {
     expect(resolved.version).toBe(2);
     expect(resolved.sites.x.filters.promoted).toBe("mute");
     expect(resolved.sites.amazon.filters.sponsored).toBe("mute");
+    expect(resolved.sites.amazon.filters.highRatingSections).toBe("off");
+    expect(resolved.sites.amazon.filters.searchMismatch).toBe("off");
     expect(resolved.sites.amazon.filters.lowRating).toBe("off");
     expect(resolved.sites.amazon.filters.minRating).toBe(4);
     // Missing google site fills from defaults.
@@ -66,7 +68,13 @@ describe("resolveSettings", () => {
               replacement: "x",
               rules: [{ id: "a", term: "sponsored", scope: "anywhere" }],
             },
-            filters: { sponsored: "hide", lowRating: "mute", minRating: 3.5 },
+            filters: {
+              sponsored: "hide",
+              highRatingSections: "hide",
+              searchMismatch: "mute",
+              lowRating: "mute",
+              minRating: 3.5,
+            },
           },
         },
       },
@@ -75,6 +83,8 @@ describe("resolveSettings", () => {
     expect(resolved.sites.amazon.text.enabled).toBe(false);
     expect(resolved.sites.amazon.text.rules).toEqual([]);
     expect(resolved.sites.amazon.filters.sponsored).toBe("hide");
+    expect(resolved.sites.amazon.filters.highRatingSections).toBe("hide");
+    expect(resolved.sites.amazon.filters.searchMismatch).toBe("mute");
     expect(resolved.sites.amazon.filters.minRating).toBe(3.5);
   });
 

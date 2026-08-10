@@ -3,22 +3,133 @@ import { strongerMode } from "../../shared/settings";
 import { sites } from "../../sites/catalog";
 import { elementsMatching, mountStyle, type SiteAdapter } from "./types";
 
-const RESULT_SELECTOR = [
+const PRODUCT_RESULT_SELECTOR = [
   '[data-component-type="sp-sponsored-result"]',
   '[data-component-type="s-search-result"]',
 ].join(",");
+const SECTION_RESULT_SELECTOR =
+  '.s-main-slot > .s-result-item:not([data-component-type="s-search-result"])';
+const FILTER_TARGET_SELECTOR = `${PRODUCT_RESULT_SELECTOR},${SECTION_RESULT_SELECTOR}`;
+const HIGH_RATING_HEADING_SELECTOR = '[id$="_featuredasins-heading"]';
 const SPONSORED_MARKER_SELECTOR = [
   ".puis-sponsored-label-text",
   ".s-sponsored-label-info-icon",
   '[aria-label="Sponsored"]',
   '[data-component-type="sp-sponsored-result"]',
 ].join(",");
+const PRODUCT_TITLE_SELECTOR = [
+  '[data-cy="title-recipe"] h2',
+  "h2 a span",
+  "h2 span",
+  "h2",
+].join(",");
+const PRODUCT_TILE_SELECTOR = '[data-cy="title-recipe"]';
 const FILTER_ATTRIBUTE = "data-ctn-amazon";
 const STYLE_ID = "ctn-amazon-styles";
+
+const SPONSORED_LABELS = new Set([
+  "sponsored",
+  "gesponsert",
+  "sponsorisé",
+  "sponsorizzato",
+  "patrocinado",
+  "gesponsord",
+  "sponsorowane",
+  "sponsrad",
+  "sponsorlu",
+  "スポンサー",
+  "إعلان",
+]);
+const HIGH_RATING_LABELS = new Set([
+  "4 stars and above",
+  "highly rated",
+  "4 sterne & mehr",
+  "4 sterne und mehr",
+  "4 étoiles et plus",
+  "4 stelle e oltre",
+  "4 stelle o più",
+  "4 estrellas o más",
+  "4 estrelas ou mais",
+  "4 sterren en meer",
+  "4 gwiazdki i więcej",
+  "4 stjärnor och uppåt",
+  "4 yıldız ve üzeri",
+  "星4つ以上",
+  "4 نجوم وما فوق",
+]);
+
+/** Returns normalized words only for Amazon keyword-search result URLs. */
+export function getAmazonSearchWords(url: string): string[] {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return [];
+  }
+
+  if (!/^\/s(?:\/|$)/.test(parsed.pathname)) return [];
+  return wordsIn(parsed.searchParams.get("k") ?? "");
+}
+
+function wordsIn(value: string): string[] {
+  return value
+    .normalize("NFKC")
+    .toLocaleLowerCase()
+    .match(/[\p{L}\p{N}]+/gu) ?? [];
+}
+
+/** Whether the product title contains at least one searched word. */
+export function productTitleMatchesSearch(result: Element, searchWords: readonly string[]): boolean {
+  if (searchWords.length === 0) return true;
+  const title = result.querySelector(PRODUCT_TITLE_SELECTOR)?.textContent;
+  // Search cards can arrive before their title is hydrated. Keep them visible
+  // until there is enough information to make a filtering decision.
+  if (!title?.trim()) return true;
+  const titleWords = new Set(wordsIn(title));
+  return searchWords.some((word) => titleWords.has(word));
+}
 
 function isSponsoredResult(result: Element): boolean {
   return result.matches('[data-component-type="sp-sponsored-result"]')
     || Boolean(result.querySelector(SPONSORED_MARKER_SELECTOR));
+}
+
+/** Full-width search widgets use different markup than product cards. */
+export function isSponsoredSection(section: Element): boolean {
+  if (section.classList.contains("AdHolder")) return true;
+
+  const products = section.querySelectorAll(PRODUCT_TILE_SELECTOR);
+  const firstProduct = products.item(0);
+  return Array.from(section.querySelectorAll("span, a, div")).some((element) => {
+    if (element.childElementCount > 0 || !SPONSORED_LABELS.has(normalizeLabel(element))) {
+      return false;
+    }
+
+    // Section disclosures appear before the carousel's first product. A label
+    // buried inside a later tile should not classify the whole mixed widget.
+    return products.length <= 1
+      || !firstProduct
+      || Boolean(element.compareDocumentPosition(firstProduct) & Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+}
+
+/** Amazon uses a featured-ASIN heading for high-rating carousels and other widgets. */
+export function isHighRatingSection(section: Element): boolean {
+  const headings = section.matches(HIGH_RATING_HEADING_SELECTOR)
+    ? [section]
+    : Array.from(section.querySelectorAll(HIGH_RATING_HEADING_SELECTOR));
+
+  return headings.some((heading) => (
+    HIGH_RATING_LABELS.has(normalizeLabel(heading))
+  ));
+}
+
+function normalizeLabel(element: Element): string {
+  return (element.textContent ?? "")
+    .normalize("NFKC")
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/\s+/g, " ");
 }
 
 /**
@@ -58,11 +169,26 @@ export function parseRatingText(text: string): number | null {
   return value;
 }
 
-function resolveMode(result: Element, sponsored: FilterMode, lowRating: FilterMode, minRating: number): FilterMode {
+function resolveProductMode(
+  result: Element,
+  sponsored: FilterMode,
+  searchMismatch: FilterMode,
+  lowRating: FilterMode,
+  minRating: number,
+  searchWords: readonly string[],
+): FilterMode {
   let mode: FilterMode = "off";
 
   if (isSponsoredResult(result) && sponsored !== "off") {
     mode = strongerMode(mode, sponsored);
+  }
+
+  if (
+    searchMismatch !== "off"
+    && searchWords.length > 0
+    && !productTitleMatchesSearch(result, searchWords)
+  ) {
+    mode = strongerMode(mode, searchMismatch);
   }
 
   if (lowRating !== "off") {
@@ -70,6 +196,24 @@ function resolveMode(result: Element, sponsored: FilterMode, lowRating: FilterMo
     if (rating !== null && rating < minRating) {
       mode = strongerMode(mode, lowRating);
     }
+  }
+
+  return mode;
+}
+
+function resolveSectionMode(
+  section: Element,
+  sponsored: FilterMode,
+  highRatingSections: FilterMode,
+): FilterMode {
+  let mode: FilterMode = "off";
+
+  if (sponsored !== "off" && isSponsoredSection(section)) {
+    mode = strongerMode(mode, sponsored);
+  }
+
+  if (highRatingSections !== "off" && isHighRatingSection(section)) {
+    mode = strongerMode(mode, highRatingSections);
   }
 
   return mode;
@@ -96,18 +240,34 @@ export const amazonAdapter: SiteAdapter = {
     `);
   },
   applyFilters(root, settings) {
-    const { sponsored, lowRating, minRating } = settings.sites.amazon.filters;
+    const {
+      sponsored,
+      highRatingSections,
+      searchMismatch,
+      lowRating,
+      minRating,
+    } = settings.sites.amazon.filters;
+    const searchWords = searchMismatch === "off" ? [] : getAmazonSearchWords(location.href);
 
-    if (root.hasAttribute(FILTER_ATTRIBUTE) && !root.matches(RESULT_SELECTOR)) {
+    if (root.hasAttribute(FILTER_ATTRIBUTE) && !root.matches(FILTER_TARGET_SELECTOR)) {
       root.removeAttribute(FILTER_ATTRIBUTE);
     }
 
-    const results = elementsMatching(root, RESULT_SELECTOR);
-    const ancestorResult = root.closest(RESULT_SELECTOR);
+    const results = elementsMatching(root, FILTER_TARGET_SELECTOR);
+    const ancestorResult = root.closest(FILTER_TARGET_SELECTOR);
     if (ancestorResult && !results.includes(ancestorResult)) results.push(ancestorResult);
 
     for (const result of results) {
-      const mode = resolveMode(result, sponsored, lowRating, minRating);
+      const mode = result.matches(PRODUCT_RESULT_SELECTOR)
+        ? resolveProductMode(
+            result,
+            sponsored,
+            searchMismatch,
+            lowRating,
+            minRating,
+            searchWords,
+          )
+        : resolveSectionMode(result, sponsored, highRatingSections);
       if (mode === "off") result.removeAttribute(FILTER_ATTRIBUTE);
       else result.setAttribute(FILTER_ATTRIBUTE, mode);
     }

@@ -109,7 +109,11 @@ async function start(siteAdapter: SiteAdapter): Promise<void> {
     if (!isActive()) return;
     for (const mutation of mutations) {
       if (mutation.type === "characterData") {
-        processTextNode(mutation.target as Text);
+        const textNode = mutation.target as Text;
+        processTextNode(textNode);
+        if (textNode.parentElement) {
+          siteAdapter.applyFilters(textNode.parentElement, settings);
+        }
         continue;
       }
       if (mutation.type === "attributes") {
@@ -120,7 +124,13 @@ async function start(siteAdapter: SiteAdapter): Promise<void> {
         siteAdapter.applyFilters(mutation.target as Element, settings);
       }
       for (const node of mutation.addedNodes) {
-        if (node.nodeType === Node.TEXT_NODE) processTextNode(node as Text);
+        if (node.nodeType === Node.TEXT_NODE) {
+          const textNode = node as Text;
+          processTextNode(textNode);
+          if (textNode.parentElement) {
+            siteAdapter.applyFilters(textNode.parentElement, settings);
+          }
+        }
         if (node.nodeType === Node.ELEMENT_NODE) processRoot(node as Element);
       }
     }

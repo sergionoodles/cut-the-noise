@@ -27,6 +27,10 @@ export interface XFilters {
 export interface AmazonFilters {
   /** Sponsored search placements. */
   sponsored: FilterMode;
+  /** Full-width recommendation carousels based on high ratings. */
+  highRatingSections: FilterMode;
+  /** Products whose titles contain none of the current search words. */
+  searchMismatch: FilterMode;
   /** Products rated below minRating. */
   lowRating: FilterMode;
   /** Hide/mute products with rating strictly below this value. */
@@ -90,6 +94,8 @@ export function createDefaultSettings(): AppSettings {
         },
         filters: {
           sponsored: "mute",
+          highRatingSections: "off",
+          searchMismatch: "off",
           lowRating: "off",
           minRating: 4,
         },
@@ -195,6 +201,11 @@ function migrateAmazonFilters(raw: unknown): AmazonFilters {
 
   return {
     sponsored,
+    highRatingSections: normalizeFilterMode(
+      filters.highRatingSections,
+      defaults.highRatingSections,
+    ),
+    searchMismatch: normalizeFilterMode(filters.searchMismatch, defaults.searchMismatch),
     lowRating: normalizeFilterMode(filters.lowRating, defaults.lowRating),
     minRating: normalizeMinRating(filters.minRating, defaults.minRating),
   };

@@ -8,6 +8,8 @@ Cut the Noise is a local browser filter that makes busy websites calmer. Each su
 - Removes or replaces site-specific words and phrases, either anywhere or only at the start of text.
 - Compacts and tints promoted posts on X.
 - Softens or hides sponsored search results on Amazon and Google.
+- Mutes or hides Amazon products unrelated to the words in a keyword search.
+- Mutes or hides Amazon's full-width sponsored and high-rating sections.
 - Applies changes as dynamically loaded content appears.
 - Stores synced settings locally through the browser extension API.
 
