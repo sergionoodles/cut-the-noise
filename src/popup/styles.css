@@ -1,47 +1,66 @@
 /* ------------------------------------------------------------------
-   Cut the Noise — light minimal UI
-   Paper · ink · blue accent · matte rose
+   Cut the Noise — Tokyo Night TUI (restored)
+   Tokyo Night palette · TUI grid · panel glow · kept layout & logo
    ------------------------------------------------------------------ */
 
+@font-face {
+  font-family: "Saira Stencil One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/SairaStencilOne-Regular.woff2") format("woff2");
+}
+
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Surfaces */
-  --paper: #f5f4f1;
-  --paper-raised: #fcfbf9;
-  --paper-sunken: #ebe9e4;
-  --paper-edge: #ddd9d1;
+  /* Tokyo Night — Night (#1a1b26) + Storm (#24283b) */
+  --bg: #1a1b26;
+  --panel: rgba(36, 40, 59, 0.92); /* #24283b */
+  --panel-2: rgba(36, 40, 59, 0.86);
+  --panel-raised: #292e42;
+  --fg: #c0caf5;
+  --muted: #565f89;
+  --soft: #a9b1d6;
+  --line: rgba(65, 72, 104, 0.36); /* #414868 */
+  --line-strong: rgba(65, 72, 104, 0.62);
+  --accent: #7aa2f7; /* Tokyo blue */
+  --accent-2: #7dcfff; /* cyan */
+  --accent-deep: #3d59a1;
+  --accent-mid: #414868;
+  --accent-soft: rgba(122, 162, 247, 0.14);
+  --on: #9ece6a; /* Tokyo green */
+  --amber: #e0af68; /* Tokyo yellow */
+  --red: #f7768e; /* Tokyo red */
+  --orange: #ff9e64;
+  --teal: #73daca;
+  --magenta: #bb9af7;
+  --bg-elevated: #24283b;
 
-  /* Ink */
-  --ink: #2a2c2e;
-  --ink-soft: #4a4d50;
-  --ink-muted: #6d7175;
-  --ink-faint: #969a9e;
-
-  /* Primary accent — neutral blue */
-  --accent: #4a6fa5;
-  --accent-deep: #3a5a88;
-  --accent-soft: #e8eef6;
-  --accent-mid: #7a98c0;
-
-  /* Secondary — matte rose */
-  --rose: #b07a76;
-  --rose-soft: #f3e9e8;
-  --rose-deep: #946560;
-
-  /* Lines & focus */
-  --line: rgb(42 44 46 / 8%);
-  --line-strong: rgb(42 44 46 / 12%);
+  /* Compat aliases for existing layout vars */
+  --paper: var(--bg);
+  --paper-raised: var(--panel-raised);
+  --paper-sunken: #292e42;
+  --paper-edge: var(--line-strong);
+  --ink: var(--fg);
+  --ink-soft: var(--soft);
+  --ink-muted: var(--muted);
+  --ink-faint: rgba(86, 95, 137, 0.72);
+  --rose: var(--red);
+  --rose-soft: rgba(247, 118, 142, 0.12);
+  --rose-deep: #b64a5e;
   --focus: var(--accent);
 
   /* Type */
-  --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --sans: "Avenir Next", Avenir, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", "Liberation Mono", Menlo, monospace;
+  --serif: var(--mono);
+  --sans: var(--mono);
+  --display: "Saira Stencil One", sans-serif;
 
-  --radius: 3px;
+  --radius: 2px;
   --popup-w: 400px;
 
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -55,22 +74,54 @@
 
 html {
   width: var(--popup-w);
-  background: var(--paper);
-  scrollbar-color: var(--accent-mid) transparent;
+  background: var(--bg);
   scrollbar-width: thin;
+  scrollbar-color: var(--accent-mid) var(--bg);
 }
 
 body {
   width: var(--popup-w);
   margin: 0;
   overflow-x: hidden;
-  color: var(--ink);
+  overflow-y: auto;
+  color: var(--fg);
   background:
-    radial-gradient(ellipse 60% 35% at 100% 0%, rgb(74 111 165 / 5%), transparent 55%),
-    radial-gradient(ellipse 45% 30% at 0% 80%, rgb(176 122 118 / 4%), transparent 50%),
-    var(--paper);
+    radial-gradient(circle at 12% 10%, rgba(122, 162, 247, 0.14), transparent 30%),
+    radial-gradient(circle at 86% 0%, rgba(125, 207, 255, 0.1), transparent 34%),
+    linear-gradient(135deg, #16161e 0%, #1a1b26 48%, #0f0f14 100%);
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-mid) var(--bg);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(192, 202, 245, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192, 202, 245, 0.025) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(circle at 50% 20%, black, transparent 76%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(192, 202, 245, 0.022) 0,
+    rgba(192, 202, 245, 0.022) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.26;
+  mix-blend-mode: screen;
 }
 
 #root {
@@ -91,17 +142,37 @@ select {
 }
 
 ::selection {
-  color: #fff;
+  color: var(--bg);
   background: var(--accent);
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, #24283b 0%, #1a1b26 100%);
+  border-left: 1px solid rgba(65, 72, 104, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(65, 72, 104, 0.12);
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 2px;
-  background: var(--accent-mid);
+  border: 1px solid rgba(122, 162, 247, 0.52);
+  background: linear-gradient(180deg, #7aa2f7 0%, #3d59a1 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 10px rgba(122, 162, 247, 0.22);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  border-color: rgba(125, 207, 255, 0.72);
+  background: linear-gradient(180deg, #7dcfff 0%, #3d59a1 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(26, 27, 38, 0.9);
 }
 
 /* ------------------------------------------------------------------
@@ -112,7 +183,7 @@ select {
   position: relative;
   z-index: 1;
   width: var(--popup-w);
-  padding: 18px 18px 14px;
+  padding: 16px 16px 14px;
 }
 
 /* ------------------------------------------------------------------
@@ -139,14 +210,20 @@ select {
   height: 38px;
   flex: 0 0 auto;
   place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(122, 162, 247, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
 }
 
 .brand-mark img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 7px;
+  border-radius: 2px;
   user-select: none;
+  display: block;
 }
 
 .brand-copy {
@@ -162,21 +239,14 @@ p {
 
 h1 {
   margin: 0;
-  font-family: var(--sans);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  color: var(--ink);
-  background: linear-gradient(
-    135deg,
-    var(--ink) 0%,
-    var(--accent-deep) 55%,
-    var(--rose-deep) 120%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--fg);
+  text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(122, 162, 247, 0.28);
 }
 
 .master-toggle {
@@ -187,34 +257,39 @@ h1 {
 }
 
 .master-label {
-  color: var(--ink-muted);
+  color: var(--muted);
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 /* ------------------------------------------------------------------
-   Status
+   Status — Tokyo Night panel style
    ------------------------------------------------------------------ */
 
 .status-bar {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-height: 32px;
+  min-height: 34px;
   margin: 14px 0 12px;
-  padding: 0 1px;
-  border-block: 1px solid var(--line-strong);
-  color: var(--ink-muted);
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(36, 40, 59, 0.62);
+  color: var(--amber);
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  box-shadow: inset 0 0 18px rgba(224, 175, 104, 0.06);
 }
 
 .status-bar.is-live {
-  color: var(--accent-deep);
+  border-color: rgba(122, 162, 247, 0.42);
+  color: var(--accent-2);
+  box-shadow: inset 0 0 18px rgba(122, 162, 247, 0.08);
 }
 
 .status-dot {
@@ -224,6 +299,7 @@ h1 {
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
+  filter: drop-shadow(0 0 6px currentColor);
 }
 
 .is-live .status-dot {
@@ -237,7 +313,7 @@ h1 {
 }
 
 /* ------------------------------------------------------------------
-   Site switcher — logo-only tabs with enable badge
+   Site switcher — Tokyo Night buttons (logo-only, keep layout)
    ------------------------------------------------------------------ */
 
 .site-switcher {
@@ -246,7 +322,7 @@ h1 {
   gap: 8px;
   margin-bottom: 0;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line);
 }
 
 .site-tab {
@@ -256,25 +332,30 @@ h1 {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(122, 162, 247, 0.06);
   cursor: pointer;
   transition:
     border-color 140ms ease,
     background 140ms ease,
-    box-shadow 140ms ease;
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
 .site-tab:hover {
-  border-color: rgb(74 111 165 / 28%);
-  background: #fff;
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: rgba(122, 162, 247, 0.12);
+  box-shadow: 0 0 18px rgba(122, 162, 247, 0.14);
 }
 
 .site-tab.is-selected {
-  border-color: rgb(74 111 165 / 38%);
-  background: linear-gradient(180deg, #fff 0%, var(--accent-soft) 160%);
-  box-shadow: 0 0 0 1px rgb(74 111 165 / 12%);
+  border-color: rgba(122, 162, 247, 0.52);
+  background: rgba(122, 162, 247, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 18px rgba(122, 162, 247, 0.18);
 }
 
 .site-tab:focus-visible {
@@ -288,17 +369,18 @@ h1 {
   width: 28px;
   height: 28px;
   place-items: center;
-  color: var(--ink-muted);
+  color: var(--muted);
 }
 
 .is-selected .site-icon-wrap {
-  color: var(--accent-deep);
+  color: var(--accent-2);
 }
 
 .brand-icon {
   width: 18px;
   height: 18px;
   display: block;
+  filter: drop-shadow(0 0 6px rgba(122, 162, 247, 0.18));
 }
 
 /* The Amazon mark has more built-in whitespace than the other brand paths. */
@@ -310,41 +392,42 @@ h1 {
 /* Enable/disable badge — top-right of the logo */
 .site-status {
   position: absolute;
-  top: -1px;
-  right: -1px;
+  top: -2px;
+  right: -2px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--ink-faint);
-  box-shadow: 0 0 0 1.5px var(--paper-raised);
+  background: var(--muted);
+  box-shadow: 0 0 0 1.5px var(--panel-raised);
   transition: background 140ms ease, box-shadow 140ms ease;
 }
 
 .site-tab:hover .site-status {
-  box-shadow: 0 0 0 1.5px #fff;
+  box-shadow: 0 0 0 1.5px rgba(122, 162, 247, 0.16);
 }
 
 .site-tab.is-selected .site-status {
-  box-shadow: 0 0 0 1.5px #f7f8fb;
+  box-shadow: 0 0 0 1.5px var(--panel-raised);
 }
 
 .site-status.is-on {
-  background: #4f9a6a;
+  background: var(--on);
   box-shadow:
-    0 0 0 1.5px var(--paper-raised),
-    0 0 0 3px rgb(79 154 106 / 18%);
+    0 0 0 1.5px var(--panel-raised),
+    0 0 0 3px rgba(158, 206, 106, 0.2),
+    0 0 10px rgba(158, 206, 106, 0.35);
 }
 
 .site-tab:hover .site-status.is-on {
   box-shadow:
-    0 0 0 1.5px #fff,
-    0 0 0 3px rgb(79 154 106 / 18%);
+    0 0 0 1.5px rgba(122, 162, 247, 0.18),
+    0 0 0 3px rgba(158, 206, 106, 0.22);
 }
 
 .site-tab.is-selected .site-status.is-on {
   box-shadow:
-    0 0 0 1.5px #f7f8fb,
-    0 0 0 3px rgb(79 154 106 / 20%);
+    0 0 0 1.5px var(--panel-raised),
+    0 0 0 3px rgba(158, 206, 106, 0.22);
 }
 
 /* ------------------------------------------------------------------
@@ -360,44 +443,55 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 1px 14px;
+  padding: 14px 2px 14px;
 }
 
 .site-domain {
   margin: 0 0 4px;
   color: var(--accent);
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(122, 162, 247, 0.5);
 }
 
 .site-heading h2 {
   margin: 0;
-  font-family: var(--serif);
-  font-size: 24px;
-  font-weight: 400;
-  letter-spacing: -0.03em;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   line-height: 1;
-  color: var(--ink);
+  color: var(--fg);
+  text-transform: uppercase;
 }
 
 /* ------------------------------------------------------------------
-   Sections
+   Sections — Tokyo Night panel
    ------------------------------------------------------------------ */
 
 .section {
-  padding: 14px 0 16px;
-  border-top: 1px solid var(--line-strong);
+  padding: 14px 12px 16px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--panel-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.section + .section {
+  margin-top: 10px;
 }
 
 .section-title {
   margin: 0 0 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-muted);
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(122, 162, 247, 0.35);
 }
 
 /* ------------------------------------------------------------------
@@ -409,13 +503,14 @@ h1 {
   padding: 0;
   list-style: none;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-raised);
+  border-radius: 2px;
+  background: rgba(22, 22, 30, 0.55);
   overflow: hidden;
 }
 
 .filter-row {
   padding: 12px;
+  background: transparent;
 }
 
 .filter-row + .filter-row {
@@ -437,15 +532,16 @@ h1 {
 }
 
 .filter-copy strong {
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 600;
+  color: var(--fg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .filter-copy span {
-  color: var(--ink-muted);
-  font-size: 11px;
-  line-height: 1.35;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .feature-heading {
@@ -459,7 +555,7 @@ h1 {
 }
 
 /* ------------------------------------------------------------------
-   Three-way mode switch
+   Three-way mode switch — Tokyo Night (mode-aware)
    ------------------------------------------------------------------ */
 
 .mode-switch {
@@ -474,28 +570,51 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   height: 22px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: 2px;
-  background: var(--paper-sunken);
+  background: #16161e;
   overflow: hidden;
 }
 
 .mode-switch-thumb {
   position: absolute;
-  top: 1px;
-  bottom: 1px;
-  left: 1px;
-  width: calc((100% - 2px) / 3);
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 4px) / 3);
   border-radius: 1px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(42 44 46 / 10%);
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: var(--muted);
+  border: 1px solid var(--muted);
+  box-shadow: none;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 160ms ease,
+    border-color 160ms ease;
   pointer-events: none;
 }
 
+/* Off → muted, Mute → Tokyo yellow, Hide → Tokyo green — flat, no halo */
+.mode-switch.mode-off .mode-switch-thumb {
+  background: var(--muted);
+  border-color: var(--muted);
+  box-shadow: none;
+}
+
+.mode-switch.mode-mute .mode-switch-thumb {
+  background: var(--amber);
+  border-color: var(--amber);
+  box-shadow: none;
+}
+
+.mode-switch.mode-hide .mode-switch-thumb {
+  background: var(--on);
+  border-color: var(--on);
+  box-shadow: none;
+}
+
+/* Keep subtle active glow for is-active rows as fallback */
 .filter-row.is-active .mode-switch-thumb {
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 1px rgb(74 111 165 / 18%);
+  /* overridden by mode-* above; kept for compat */
 }
 
 .mode-switch-option {
@@ -521,25 +640,37 @@ h1 {
 }
 
 .mode-switch-label {
-  color: var(--ink-faint);
+  color: var(--muted);
   font-size: 8px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-align: center;
   text-transform: uppercase;
   line-height: 1.2;
-  transition: color 140ms ease;
+  transition: color 140ms ease, text-shadow 140ms ease;
 }
 
 .mode-switch-label.is-active {
-  color: var(--accent-deep);
+  color: var(--fg);
 }
 
-.filter-row.is-active .mode-switch-label.is-active {
-  color: var(--accent);
+/* label color matches_thumb mode */
+.mode-switch.mode-off .mode-switch-label.is-active {
+  color: var(--muted);
+  text-shadow: none;
 }
 
-/* Rating threshold chips */
+.mode-switch.mode-mute .mode-switch-label.is-active {
+  color: var(--amber);
+  text-shadow: none;
+}
+
+.mode-switch.mode-hide .mode-switch-label.is-active {
+  color: var(--on);
+  text-shadow: none;
+}
+
+/* Rating threshold chips — Tokyo Night buttons */
 .filter-threshold {
   display: flex;
   align-items: center;
@@ -557,9 +688,9 @@ h1 {
 
 .threshold-label {
   flex: 0 0 auto;
-  color: var(--ink-muted);
+  color: var(--muted);
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -574,27 +705,34 @@ h1 {
   min-width: 36px;
   height: 24px;
   padding: 0 8px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: 2px;
-  background: var(--paper);
-  color: var(--ink-soft);
+  background: rgba(122, 162, 247, 0.06);
+  color: var(--muted);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition:
     border-color 120ms ease,
     background 120ms ease,
-    color 120ms ease;
+    color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
 }
 
 .threshold-chip:hover:not(:disabled) {
-  border-color: rgb(74 111 165 / 35%);
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: rgba(122, 162, 247, 0.12);
+  color: var(--fg);
+  box-shadow: 0 0 12px rgba(122, 162, 247, 0.14);
 }
 
 .threshold-chip.is-selected {
-  border-color: rgb(74 111 165 / 45%);
-  background: var(--accent-soft);
-  color: var(--accent-deep);
+  border-color: var(--accent);
+  background: rgba(122, 162, 247, 0.16);
+  color: var(--accent-2);
+  box-shadow: 0 0 14px rgba(122, 162, 247, 0.18);
 }
 
 .threshold-chip:disabled {
@@ -602,7 +740,7 @@ h1 {
 }
 
 /* ------------------------------------------------------------------
-   Toggle
+   Toggle — Tokyo Night (red off / green on)
    ------------------------------------------------------------------ */
 
 .toggle {
@@ -622,9 +760,9 @@ h1 {
 .toggle-track {
   position: relative;
   display: block;
-  border: 1px solid var(--line-strong);
+  border: 1px solid rgba(247, 118, 142, 0.42);
   border-radius: 2px;
-  background: var(--paper-sunken);
+  background: rgba(247, 118, 142, 0.08);
   transition:
     border-color 150ms ease,
     background 150ms ease;
@@ -646,8 +784,8 @@ h1 {
   left: 2px;
   z-index: 1;
   border-radius: 1px;
-  background: var(--ink-faint);
-  box-shadow: 0 1px 2px rgb(42 44 46 / 12%);
+  background: var(--red);
+  box-shadow: none;
   transition:
     transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
     background 150ms ease;
@@ -664,12 +802,14 @@ h1 {
 }
 
 .toggle input:checked + .toggle-track {
-  border-color: rgb(74 111 165 / 50%);
-  background: var(--accent-soft);
+  border-color: rgba(158, 206, 106, 0.58);
+  background: rgba(158, 206, 106, 0.12);
+  box-shadow: none;
 }
 
 .toggle input:checked + .toggle-track i {
-  background: var(--accent);
+  background: var(--on);
+  box-shadow: none;
 }
 
 .toggle-sm input:checked + .toggle-track i {
@@ -715,8 +855,9 @@ select:focus-visible {
 }
 
 .rule-index {
-  color: var(--ink-faint);
+  color: var(--muted);
   font-size: 10px;
+  font-weight: 700;
   text-align: right;
 }
 
@@ -724,12 +865,12 @@ input,
 select {
   min-width: 0;
   height: 34px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  border-radius: 2px;
   outline: 0;
-  color: var(--ink);
-  background: var(--paper-raised);
-  font-size: 12px;
+  color: var(--fg);
+  background: #16161e;
+  font-size: 11px;
   transition:
     border-color 140ms ease,
     background 140ms ease,
@@ -738,18 +879,20 @@ select {
 
 input:hover,
 select:hover {
-  border-color: rgb(74 111 165 / 30%);
+  border-color: rgba(122, 162, 247, 0.38);
 }
 
 input:focus,
 select:focus {
-  border-color: rgb(74 111 165 / 45%);
-  background: #fff;
-  box-shadow: 0 0 0 3px rgb(74 111 165 / 10%);
+  border-color: var(--accent);
+  background: #1f2335;
+  box-shadow:
+    0 0 0 3px rgba(122, 162, 247, 0.12),
+    0 0 18px rgba(122, 162, 247, 0.12);
 }
 
 input::placeholder {
-  color: var(--ink-faint);
+  color: rgba(86, 95, 137, 0.62);
 }
 
 input {
@@ -760,8 +903,8 @@ select {
   appearance: none;
   padding: 6px 22px 6px 8px;
   background-image:
-    linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
-    linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
   background-position:
     calc(100% - 11px) 14px,
     calc(100% - 7px) 14px;
@@ -784,24 +927,25 @@ select {
 .remove-rule svg {
   width: 14px;
   height: 14px;
-  stroke: var(--ink-faint);
+  stroke: var(--muted);
   stroke-width: 1.25;
   fill: none;
-  transition: stroke 120ms ease, transform 160ms ease;
+  transition: stroke 120ms ease, transform 160ms ease, filter 120ms ease;
 }
 
 .remove-rule:hover svg {
-  stroke: var(--rose);
+  stroke: var(--red);
+  filter: drop-shadow(0 0 6px rgba(247, 118, 142, 0.5));
   transform: rotate(90deg);
 }
 
 .empty-rule {
   padding: 14px 12px;
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius);
-  color: var(--ink-muted);
-  background: rgb(252 251 249 / 60%);
-  font-size: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 2px;
+  color: var(--muted);
+  background: rgba(122, 162, 247, 0.04);
+  font-size: 11px;
   text-align: center;
 }
 
@@ -810,14 +954,22 @@ select {
   align-items: center;
   gap: 8px;
   margin: 10px 0 14px 27px;
-  padding: 4px 0;
-  border: 0;
-  color: var(--accent-deep);
-  background: transparent;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  padding: 6px 10px;
+  border: 1px solid rgba(122, 162, 247, 0.28);
+  border-radius: 2px;
+  color: var(--accent);
+  background: rgba(122, 162, 247, 0.07);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
 .add-rule span {
@@ -825,8 +977,9 @@ select {
   width: 18px;
   height: 18px;
   place-items: center;
-  border: 1px solid var(--accent-mid);
+  border: 1px solid var(--accent);
   border-radius: 2px;
+  background: transparent;
   font-size: 14px;
   font-weight: 400;
   line-height: 1;
@@ -837,11 +990,15 @@ select {
 }
 
 .add-rule:hover {
-  color: var(--accent);
+  transform: translateY(-1px);
+  color: var(--accent-2);
+  border-color: var(--accent);
+  background: rgba(122, 162, 247, 0.13);
+  box-shadow: 0 0 16px rgba(122, 162, 247, 0.14);
 }
 
 .add-rule:hover span {
-  color: #fff;
+  color: var(--bg);
   border-color: var(--accent);
   background: var(--accent);
 }
@@ -862,10 +1019,10 @@ select {
 
 .field > span,
 .check-field span {
-  color: var(--ink-muted);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  color: var(--soft);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -889,9 +1046,9 @@ select {
   flex: 0 0 auto;
   padding: 0;
   appearance: none;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: 2px;
-  background: var(--paper-raised);
+  background: #16161e;
   cursor: pointer;
 }
 
@@ -901,7 +1058,7 @@ select {
   left: 4px;
   width: 4px;
   height: 8px;
-  border: solid #fff;
+  border: solid var(--bg);
   border-width: 0 1.5px 1.5px 0;
   content: "";
   opacity: 0;
@@ -912,6 +1069,7 @@ select {
 .check-field input:checked {
   border-color: var(--accent);
   background: var(--accent);
+  box-shadow: 0 0 10px rgba(122, 162, 247, 0.28);
 }
 
 .check-field input:checked::after {
@@ -921,8 +1079,8 @@ select {
 
 .rules-hint {
   margin: 8px 0 0;
-  color: var(--ink-faint);
-  font-size: 11px;
+  color: var(--muted);
+  font-size: 10px;
   line-height: 1.45;
 }
 
@@ -934,15 +1092,16 @@ select {
   display: flex;
   align-items: center;
   min-height: 30px;
-  margin-top: 4px;
+  margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid var(--line-strong);
-  color: var(--ink-faint);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
   font-size: 10px;
   font-weight: 400;
   letter-spacing: 0.01em;
   line-height: 1.35;
   text-transform: none;
+  opacity: 0.85;
 }
 
 /* ------------------------------------------------------------------
@@ -969,19 +1128,39 @@ select {
   place-content: center;
   justify-items: center;
   gap: 12px;
-  color: var(--ink-muted);
-  background: var(--paper);
+  color: var(--muted);
+  background: var(--bg);
+}
+
+.loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(192, 202, 245, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192, 202, 245, 0.025) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(circle at 50% 20%, black, transparent 76%);
+  opacity: 0.6;
 }
 
 .loading p {
+  position: relative;
+  z-index: 1;
   margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--muted);
 }
 
 .loading-mark {
-  animation: turn 1.8s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+  animation: turn 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(122, 162, 247, 0.22));
 }
 
 @keyframes settle {
@@ -998,12 +1177,12 @@ select {
 @keyframes breathe {
   0%,
   100% {
-    opacity: 0.55;
-    box-shadow: 0 0 0 3px rgb(74 111 165 / 10%);
+    opacity: 0.7;
+    box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.08);
   }
   50% {
     opacity: 1;
-    box-shadow: 0 0 0 5px rgb(74 111 165 / 6%);
+    box-shadow: 0 0 0 5px rgba(122, 162, 247, 0.04);
   }
 }
 
@@ -1011,7 +1190,7 @@ select {
   0%,
   100% {
     transform: rotate(-8deg);
-    opacity: 0.5;
+    opacity: 0.55;
   }
   50% {
     transform: rotate(12deg);

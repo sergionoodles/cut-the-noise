@@ -21,7 +21,7 @@ export function ThreeWaySwitch({ value, label, onChange }: ThreeWaySwitchProps) 
   const index = FILTER_MODES.indexOf(value);
 
   return (
-    <div className="mode-switch" role="group" aria-label={label}>
+    <div className={`mode-switch mode-${value}`} data-mode={value} role="group" aria-label={label}>
       <div className="mode-switch-track">
         <span
           className="mode-switch-thumb"
