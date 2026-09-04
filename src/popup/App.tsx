@@ -76,6 +76,13 @@ export function App() {
     }, true);
   }
 
+  function setFilterBoolean(key: string, value: boolean) {
+    update((draft) => {
+      const filters = draft.sites[selectedSite].filters as unknown as Record<string, unknown>;
+      filters[key] = value;
+    }, true);
+  }
+
   return (
     <main className="app">
       <header className="masthead">
@@ -133,8 +140,21 @@ export function App() {
             values={siteSettings.filters as unknown as Record<string, unknown>}
             onModeChange={setFilterMode}
             onThresholdChange={setFilterValue}
+            onBooleanChange={setFilterBoolean}
           />
         </Section>
+
+        {meta.extraSections.map((section) => (
+          <Section title={section.title} key={section.title}>
+            <FilterList
+              filters={section.controls}
+              values={siteSettings.filters as unknown as Record<string, unknown>}
+              onModeChange={setFilterMode}
+              onThresholdChange={setFilterValue}
+              onBooleanChange={setFilterBoolean}
+            />
+          </Section>
+        ))}
 
         {meta.supportsTextFilter && (
           <Section title="Word quieting">

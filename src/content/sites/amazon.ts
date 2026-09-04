@@ -1,6 +1,7 @@
 import type { FilterMode } from "../../shared/settings";
 import { strongerMode } from "../../shared/settings";
 import { sites } from "../../sites/catalog";
+import { applyPriceRounding, resetPriceRounding, shouldRoundPricesForUrl } from "./amazon-prices";
 import { elementsMatching, mountStyle, type SiteAdapter } from "./types";
 
 const PRODUCT_RESULT_SELECTOR = [
@@ -246,6 +247,7 @@ export const amazonAdapter: SiteAdapter = {
       searchMismatch,
       lowRating,
       minRating,
+      roundPrices,
     } = settings.sites.amazon.filters;
     const searchWords = searchMismatch === "off" ? [] : getAmazonSearchWords(location.href);
 
@@ -271,10 +273,17 @@ export const amazonAdapter: SiteAdapter = {
       if (mode === "off") result.removeAttribute(FILTER_ATTRIBUTE);
       else result.setAttribute(FILTER_ATTRIBUTE, mode);
     }
+
+    if (roundPrices && shouldRoundPricesForUrl(location.href)) {
+      applyPriceRounding(root);
+    } else {
+      resetPriceRounding(root);
+    }
   },
   resetFilters(root) {
     for (const element of elementsMatching(root, `[${FILTER_ATTRIBUTE}]`)) {
       element.removeAttribute(FILTER_ATTRIBUTE);
     }
+    resetPriceRounding(root);
   },
 };

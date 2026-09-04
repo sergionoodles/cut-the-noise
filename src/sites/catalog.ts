@@ -100,6 +100,12 @@ export type SiteFilterControl =
       detail: string;
     }
   | {
+      kind: "toggle";
+      key: string;
+      title: string;
+      detail: string;
+    }
+  | {
       kind: "mode-rating";
       key: string;
       thresholdKey: string;
@@ -118,6 +124,14 @@ export interface SiteMeta {
   supportsTextFilter: boolean;
   matches: (hostname: string) => boolean;
   filters: readonly SiteFilterControl[];
+  /** Standalone control groups rendered in their own popup section below Filters. */
+  extraSections: readonly SiteSection[];
+}
+
+/** A titled group of controls rendered as its own popup section. */
+export interface SiteSection {
+  title: string;
+  controls: readonly SiteFilterControl[];
 }
 
 const ratingThresholds = RATING_THRESHOLDS.map((value) => ({
@@ -142,6 +156,7 @@ export const sites: Record<SiteId, SiteMeta> = {
         detail: "Mute or hide ads in the feed.",
       },
     ],
+    extraSections: [],
   },
   amazon: {
     id: "amazon",
@@ -181,6 +196,19 @@ export const sites: Record<SiteId, SiteMeta> = {
         thresholds: ratingThresholds,
       },
     ],
+    extraSections: [
+      {
+        title: "Price rounding",
+        controls: [
+          {
+            kind: "toggle",
+            key: "roundPrices",
+            title: "Round charm prices",
+            detail: "Show 49.99 as 50, 99.90 as 100, 49.49 as 49.50, and prices from 100 up rounded to the next hundred. Search and product pages only; cart and orders are untouched.",
+          },
+        ],
+      },
+    ],
   },
   google: {
     id: "google",
@@ -200,6 +228,7 @@ export const sites: Record<SiteId, SiteMeta> = {
         detail: "Mute or hide paid search placements.",
       },
     ],
+    extraSections: [],
   },
 };
 

@@ -35,6 +35,8 @@ export interface AmazonFilters {
   lowRating: FilterMode;
   /** Hide/mute products with rating strictly below this value. */
   minRating: number;
+  /** Round charm prices (99/98 up to next integer, 49/48 up to .50). */
+  roundPrices: boolean;
 }
 
 export interface GoogleFilters {
@@ -98,6 +100,7 @@ export function createDefaultSettings(): AppSettings {
           searchMismatch: "off",
           lowRating: "off",
           minRating: 4,
+          roundPrices: false,
         },
       },
       google: {
@@ -208,6 +211,9 @@ function migrateAmazonFilters(raw: unknown): AmazonFilters {
     searchMismatch: normalizeFilterMode(filters.searchMismatch, defaults.searchMismatch),
     lowRating: normalizeFilterMode(filters.lowRating, defaults.lowRating),
     minRating: normalizeMinRating(filters.minRating, defaults.minRating),
+    roundPrices: typeof filters.roundPrices === "boolean"
+      ? filters.roundPrices
+      : defaults.roundPrices,
   };
 }
 
