@@ -5,7 +5,7 @@ import { supportedSiteMatches } from "./sites/catalog";
 export default defineManifest({
   manifest_version: 3,
   name: "Cut the Noise",
-  version: "2026.8.1",
+  version: "2026.9.1",
   description: "A calm, local filter layer for the websites you use.",
   permissions: ["storage"],
   host_permissions: supportedSiteMatches,
